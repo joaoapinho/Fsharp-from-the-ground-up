@@ -1,6 +1,18 @@
 open System
 open System.IO
 
+module Float = 
+    let tryFromString s =
+        if s = "N/A" then 
+            None
+        else
+            Some (float s)
+    
+    let fromStringOr def s =
+        s
+        |> tryFromString
+        |> Option.defaultValue def
+
 type Student =
     {
         Name : string
@@ -18,7 +30,7 @@ module Student =
         let scores =
             elements
                     |> Array.skip 2
-                    |> Array.map float
+                    |> Array.map (Float.fromStringOr 50.0)
         let meanScore = scores |> Array.average
         let maxScore = scores |> Array.max
         let minScore = scores |> Array.min
@@ -42,7 +54,7 @@ let summarize filePath =
     |> Array.map Student.fromString //convert each line to a Student instance
     |> Array.sortByDescending(fun student -> student.MeanScore) //Sort by mean score (descending)
     |> Array.iter Student.printSummary //Print each student instance
- 
+  
 [<EntryPoint>]
 let main argv =
     if argv.Length = 1 then
