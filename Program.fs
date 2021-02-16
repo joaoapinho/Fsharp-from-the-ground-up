@@ -1,21 +1,38 @@
-// Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
-
 open System
+open System.IO
 
-let sayHello person =
-    printfn "Hello %s!" person
+let printMeanScore (row : string) =
+    let elements = row.Split('\t')
+    let name = elements.[0]
+    let id = elements.[1]
+    let scores =
+        elements
+                |> Array.skip 2
+                |> Array.map float
+    let meanScore = scores |> Array.average
+    let highScore = scores |> Array.max
+    let lowScore = scores |> Array.min
+    printfn "%s\t%s\t%0.1f\t%0.1f\t%0.1f" name id meanScore highScore lowScore
 
-let isValid person = 
-    String.IsNullOrWhiteSpace person |> not
-
-let isAllowed person =
-    person <> "Eve"
-
+let summarize filePath =
+    let rows = File.ReadAllLines filePath
+    let strudentCount = (rows |> Array.length) - 1
+    printfn "Student count %i" strudentCount
+    rows
+    |> Array.skip 1
+    |> Array.iter printMeanScore
+ 
 [<EntryPoint>]
 let main argv =
-    argv 
-    |> Array.filter isValid
-    |> Array.filter isAllowed 
-    |> Array.iter sayHello
-    printfn "Nice to meet you!"
-    0
+    if argv.Length = 1 then
+        let filePath = argv.[0]
+        if File.Exists filePath then
+            printfn "Processing %s" filePath
+            summarize filePath
+            0
+        else 
+            printfn "File %s does not exist" filePath
+            2
+    else
+        printfn "Please specify a file"
+        1
