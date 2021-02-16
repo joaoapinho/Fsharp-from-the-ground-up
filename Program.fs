@@ -1,26 +1,47 @@
 open System
 open System.IO
 
-let printMeanScore (row : string) =
-    let elements = row.Split('\t')
-    let name = elements.[0]
-    let id = elements.[1]
-    let scores =
-        elements
-                |> Array.skip 2
-                |> Array.map float
-    let meanScore = scores |> Array.average
-    let highScore = scores |> Array.max
-    let lowScore = scores |> Array.min
-    printfn "%s\t%s\t%0.1f\t%0.1f\t%0.1f" name id meanScore highScore lowScore
+type Student =
+    {
+        Name : string
+        Id : string
+        MeanScore : float
+        MinScore : float
+        MaxScore : float
+    }
+
+module Student =
+    let fromString (s: string) =
+        let elements = s.Split('\t')
+        let name = elements.[0]
+        let id = elements.[1]
+        let scores =
+            elements
+                    |> Array.skip 2
+                    |> Array.map float
+        let meanScore = scores |> Array.average
+        let maxScore = scores |> Array.max
+        let minScore = scores |> Array.min
+        {
+            Name = name
+            Id = id
+            MeanScore = meanScore
+            MinScore = minScore
+            MaxScore = maxScore
+        }
+
+    let printSummary (student : Student) =
+        printfn "%s\t%s\t%0.1f\t%0.1f\t%0.1f" student.Name student.Id student.MeanScore student.MinScore student.MaxScore
 
 let summarize filePath =
     let rows = File.ReadAllLines filePath
     let strudentCount = (rows |> Array.length) - 1
-    printfn "Student count %i" strudentCount
+    printfn "Student c ount %i" strudentCount
     rows
     |> Array.skip 1
-    |> Array.iter printMeanScore
+    |> Array.map Student.fromString //convert each line to a Student instance
+    |> Array.sortByDescending(fun student -> student.MeanScore) //Sort by mean score (descending)
+    |> Array.iter Student.printSummary //Print each student instance
  
 [<EntryPoint>]
 let main argv =
