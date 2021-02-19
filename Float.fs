@@ -3,11 +3,11 @@ namespace StudentScores
 module Float = 
     let tryFromString s =
         if s = "N/A" then 
-            None
+            Nothing
         else
-            Some (float s)
+            Something (float s)
     
     let fromStringOr def s =
         s
         |> tryFromString
-        |> Option.defaultValue def
+        |> Optional.defaultValue def

@@ -46,3 +46,5 @@ module Student =
 
     let printSummary (student : Student) =
         printfn "%s\t%s\t%s\t%0.1f\t%0.1f\t%0.1f" student.Surname student.GivenName student.Id student.MeanScore student.MinScore student.MaxScore
+    
+
