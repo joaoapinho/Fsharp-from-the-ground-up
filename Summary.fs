@@ -3,24 +3,16 @@ namespace StudentScores
 module Summary =
 
     open System.IO
-    
-    let printGroupSummary (surname : string) (students : Student []) =
-        printfn "%s" (surname.ToUpperInvariant())
-        students
-        |> Array.sortBy (fun student ->
-            student.GivenName, student.Id)
-        |> Array.iter (fun student ->
-            printfn "\t%20s\t%s\t%0.1f\t%0.1f\t%0.1f"
-                student.GivenName student.Id
-                student.MeanScore student.MinScore student.MaxScore)
 
-    let summarize filePath =
-        let rows = File.ReadAllLines filePath
-        let strudentCount = (rows |> Array.length) - 1
+    let summarize schoolCodesFilePath filePath =
+        let rows = 
+            File.ReadLines filePath
+            |> Seq.cache 
+        let strudentCount = (rows |> Seq.length) - 1
+        let schoolCodes = SchoolCodes.load schoolCodesFilePath
         printfn "Student count %i" strudentCount
         rows
-        |> Array.skip 1
-        |> Array.map Student.fromString //convert each line to a Student instance
-        |> Array.groupBy (fun s -> s.Surname)
-        |> Array.sortBy fst
-        |> Array.iter (fun (surname, students) -> printGroupSummary surname students)
+        |> Seq.skip 1
+        |> Seq.map (Student.fromString schoolCodes) //convert each line to a Student instance
+        |> Seq.sortByDescending (fun student -> student.MeanScore)
+        |> Seq.iter Student.printSummary
